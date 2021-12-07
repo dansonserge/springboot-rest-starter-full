@@ -7,4 +7,5 @@ public interface UserServices {
     User saveUser(User user);
     User getUser(String username);
     List<User> getUsers();
+    void addRoleToUser(String username, String roleName);
 }
