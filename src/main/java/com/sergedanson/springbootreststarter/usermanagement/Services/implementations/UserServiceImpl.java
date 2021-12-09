@@ -7,18 +7,46 @@ import com.sergedanson.springbootreststarter.usermanagement.Repositories.UserRep
 import com.sergedanson.springbootreststarter.usermanagement.Services.UserServices;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class UserServiceImpl implements UserServices {
+public class UserServiceImpl implements UserServices, UserDetailsService {
     private final UserRepo userRepo;
     private final RolesRepo rolesRepo;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        User user = userRepo.findByUsername(username);
+        if(user == null){
+            log.error("user {} is not found ", username);
+            throw new UsernameNotFoundException("User not found!");
+        }
+       else{
+           log.info("User {} is found", username);
+        }
+
+
+       Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+       user.getRoles().forEach(role ->{
+           authorities.add(new SimpleGrantedAuthority(role.getName()));
+       });
+
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+    }
 
     @Override
     public User saveUser(User user) {
@@ -45,4 +73,6 @@ public class UserServiceImpl implements UserServices {
         Role role = rolesRepo.findByName(roleName);
         user.getRoles().add(role);
     }
+
+
 }

@@ -1,6 +1,5 @@
 package com.sergedanson.springbootreststarter.usermanagement.Modules;
 
-
 import com.sergedanson.springbootreststarter.rolesandpermissions.Modules.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
